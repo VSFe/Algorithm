@@ -8,7 +8,7 @@ int main() {
     int a;
 	string b;
     cin >> a >> b;
-    cout << a * (b % 10) << a * (b/10)endl;
+    cout << a * (b % 10) << a * (atoi(b)/10) << endl;
     return 0;
 }
 
