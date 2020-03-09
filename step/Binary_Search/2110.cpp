@@ -6,6 +6,7 @@ Detail: 도현이의 집 N개가 수직선 위에 있다. 각각의 집의 좌�
 한 집에는 공유기를 하나만 설치할 수 있고, 가장 인접한 두 공유기 사이의 거리를 가능한 크게 하여 설치하려고 한다.
 C개의 공유기를 N개의 집에 적당히 설치해서, 가장 인접한 두 공유기 사이의 거리를 최대로 하는 프로그램을 작성하시오.
 Comment: 최대 거리의 최댓값 (?)은 length/N.
+해당 수에 가장 근접하는 두개의 값을 찾아서 절대값의 차이가 가장 작은 점을 찾아내는게 답인 것 같은데....
 */
 
 #include <stdio.h>
@@ -13,31 +14,11 @@ Comment: 최대 거리의 최댓값 (?)은 length/N.
 #include <algorithm>
 using namespace std;
 
-vector<int> vec;
 int N, C;
-int MIN = 1000000000;
-int save = 0;
-
-int find_upper(int left, int right, int val) {
-    int mid = (left + right) / 2 + 1;
-    if(vec[mid] == val) return mid;
-    if(vec[mid] > val) right = mid;
-    else left = mid + 1;
-    if(left == right) return left; 
-    find_upper(left, right, val);
-}
-
-int find_lower(int left, int right, int val) {
-    int mid = (left + right) / 2 + 1;
-    if(vec[mid] == val) return mid;
-    if(vec[mid] > val) right = mid-1;
-    else left = mid;
-    if(left == right) return left; 
-    find_lower(left, right, val);
-}
+vector<int> vec;
 
 int main() {
-    scanf("%d %d", &N ,&C);
+    scanf("%d %d", &N, &C);
     vec.reserve(N);
     for(int i = 0; i < N; i++) {
         int tmp;
@@ -45,15 +26,27 @@ int main() {
         vec.push_back(tmp);
     }
     sort(vec.begin(), vec.end());
-    int length = vec.back() - vec.front();
-    int interval = length / (C-1);
-    save = vec.front();
-    for(int i = 1; i < C; i++) {
-        int obj = vec.front() + i * interval;
-        int row = find_lower(0, N-1, obj);
-        int high = find_upper(0, N-1, obj);
-        MIN = min(MIN, min(abs(interval - (vec[row] - save)), abs(interval - (vec[high] - save))));
+    int high = vec.back() - vec.front(), low = 1;
+    int result;
+    while(high >= low) {
+        int mid = (high + low) / 2;
+        int cnt = 1, tmp = vec.front();
+        for(int i = 0; i < N; i++) {
+            if(vec[i] - tmp >= mid) {
+                tmp = vec[i];
+                cnt++;
+            }
+        }
+        if(cnt > C) {
+            result = mid;
+            low = mid + 1;
+        } else if(cnt == C) {
+            result = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
     }
-    printf("%d", min(MIN, vec.back() - save));
+    printf("%d", result);
     return 0;
 }
