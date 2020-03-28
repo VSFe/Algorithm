@@ -15,51 +15,81 @@ Detail: 휴대폰에서 길이가 P인 영단어를 입력하려면 버튼을 P�
 사전이 주어졌을 때, 이 모듈을 사용하면서 이와 같이 각 단어를 입력하기 위해 버튼을 눌러야 하는 횟수의 평균을 구하는 프로그램을 작성하시오.
 Comment: 처음 구현한 트라이 구조를 사용하면 당~~~~~~~연히 메모리가 폭발한다.
 트라이 최적화가 이 문제의 핵심 포인트가 될 것.
+-> 배열로 바꿈
 */
 
 #include <iostream>
-#include <vector>
-#include <set>
-#include <map>
-#include <string>
+#include <iomanip>
+#include <stdio.h>
 using namespace std;
+
+bool initial;
+int answer, T;
+char str[100000][81];
+
+struct Trie{
+    bool is_end;
+    int cnt;
+    Trie *children[26];
+    
+    Trie() : is_end(false), cnt(0) {
+        for(int i = 0; i < 26; i++) children[i] = nullptr;
+    }
+    ~Trie() {
+        for(int i = 0; i < 26; i++) {
+            if(children[i]) delete children[i];
+        }
+    }
+    
+    void insert(const char * key) {
+        if(*key == '\0') is_end = true;
+        else {
+            int index = *key - 'a';
+            if(children[index] == nullptr) {
+                children[index] = new Trie();
+                cnt++;
+            }
+            children[index]->insert(key + 1);
+        }
+    }
+    
+    void find(char * str) {
+        if(*str == '\0') return;
+        if(initial) {
+            initial = false;
+            answer++;
+        }
+        else {
+            if(is_end) answer++;
+            else if(cnt > 1) answer++;
+        }
+        int index = *str - 'a';
+        children[index]->find(str + 1);  
+    }
+};
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
     cout.tie(0);
-    cout.setf(ios::fixed);
-    cout.precision(2);
-    int T;
+    //freopen("E.in", "r", stdin);
     while(cin >> T) {
-        vector<map<int, int>> Trie(1000000);
-        set<int> check;
-        vector<string> vec; vec.reserve(T);
-        int TrieSize = 0;
-        check.insert(0);
+        Trie* root = new Trie();
+        answer = 0;
+
         for(int i = 0; i < T; i++) {
-            string s; cin >> s; vec.push_back(s);
-            int node = 0, size = s.size();
-            for(int j = 0; j < size; j++) {
-                int tmp = s[j] - 'a';
-                if(Trie[node].find(tmp) == Trie[node].end()) {
-                    Trie[node].insert(make_pair(tmp, ++TrieSize));
-                    node = TrieSize;
-                }
-                else node = Trie[node][tmp];
-            }
-            check.insert(node);
+            cin >> str[i];
+            root->insert(str[i]);
         }
-        double cnt = 0, len = vec.size();
+
         for(int i = 0; i < T; i++) {
-            int node = 0, size = vec[i].size();
-            string s = vec[i];
-            for(int j = 0; j < size; j++) {
-                if(Trie[node].size() > 1 || check.count(node) == 1) cnt++; 
-                node = Trie[node][s[j] - 'a'];
-            }
+            initial = true;
+            root->find(str[i]);
         }
-        cout << cnt/len << '\n';
+
+        cout << fixed << setprecision(2) << (double)answer / (double)T << '\n';
+        delete root;
+
     }
     return 0;
 }
