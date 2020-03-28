@@ -12,29 +12,34 @@ Comment: 폭발 문자열의 글자들을 set에 넣고, 있다면 스위치를 
 */
 
 #include <iostream>
-#include <stack>
+#include <string>
 using namespace std;
 
 string str;
 string bomb;
-stack<string> st;
+char result[1000001];
+int idx = 0;
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
     cout.tie(0);
     cin >> str >> bomb;
-    while(true) {
-        string::size_type idx = str.find(bomb);
-        if(idx == string::npos) break;
-        st.push(str.substr(0, int(idx)));
-        str = str.substr(int(idx) + bomb.size(), str.size() - int(idx) - bomb.size());
-        while(!st.empty()) {
-            string tmp = st.top(); st.pop();
-            str = tmp + str;
-        }
+    for(int i = 0; i < str.size(); i++) {
+        int j = bomb.size();
+        result[idx] = str[i];
+        if(result[idx] == bomb[--j]) {
+            bool is_same = true;
+            for(int k = 1; k < bomb.size(); k++) {
+                if(result[idx - k] != bomb[--j]) {
+                    is_same = false;
+                    break;
+                }
+            }
+            if(is_same) idx -= bomb.size() ;
+        } idx++;
     }
-    if(str.size() == 0) cout << "FRULA";
-    else cout << str;
+    if(idx == 0) cout << "FRULA";
+    else for(int i = 0; i < idx; i++) cout << result[i];
     return 0;
 }
