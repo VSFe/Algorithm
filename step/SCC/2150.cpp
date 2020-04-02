@@ -4,85 +4,59 @@ Tier: Platinum 5
 Detail:  방향 그래프가 주어졌을 때, 그 그래프를 SCC들로 나누는 프로그램을 작성하시오. 방향 그래프의 SCC는 우선 정점의 최대 부분집합이며,
 그 부분집합에 들어있는 서로 다른 임의의 두 정점 u, v에 대해서 u에서 v로 가는 경로와 v에서 u로 가는 경로가 모두 존재하는 경우를 말한다.
 Comment: 배운걸 이렇게 써먹네
+이미 SCC를 형성한 구간에 간섭 안하게 하는게 중요했던 문제...
+이걸 빼먹어서 이렇게 고생을 했다고?
 */
-#define UNVISITED 0
-#define VISITED 1
-#define EXPLORED 2
-#include <stdio.h>
+
+#include <iostream>
 #include <vector>
-#include <algorithm>
 #include <stack>
-#include <map>
+#include <algorithm>
 using namespace std;
 
-int V, E;
-vector<vector<int>> g;
-vector<int> visited;
-vector<int> dfs_low;
-vector<int> dfs_num;
+vector<int> graph[10001];
+vector<vector<int>> SCC;
+int dfs_num[10001], dfs_low[10001], cnt = 1;
+bool finished[10001];
 stack<int> st;
-map<int, vector<int>> scc;
-int cnt = 0;
 
-int dfs(int v) {
-    visited[v] = EXPLORED;
-    st.push(v);
-    dfs_low[v] = ++cnt;
-    dfs_num[v] = cnt;
-    int size = g[v].size();
-    for(int i = 0; i < size; i++) {
-        int tmp = g[v][i];
-        switch (visited[tmp])
-        {
-        case UNVISITED:
-            dfs_low[v] = min(dfs_low[v], dfs(tmp));
-            break;
-
-        case VISITED:
-            break;
-
-        case EXPLORED:
-        dfs_low[v] = min(dfs_low[v], dfs_num[tmp]);
-            break;
-        }
+void dfs(int idx, int prev) {
+    dfs_num[idx] = dfs_low[idx] = cnt++;
+    st.push(idx);
+    for(auto next : graph[idx]) {
+        if(!dfs_num[next]) dfs(next, idx);
+        if(!finished[next]) dfs_low[idx] = min(dfs_low[idx], dfs_low[next]);
     }
-    if(dfs_low[v] == dfs_num[v]) {
+    if(dfs_num[idx] == dfs_low[idx]) {
         vector<int> vec;
-        while(st.top() != v) {
+        while(1) {
             int t = st.top();
-            st.pop();
+            finished[t] = 1;
             vec.push_back(t);
-        }
-        st.pop();
-        vec.push_back(v);
-        visited[v] = VISITED;
+            st.pop();
+            if(t == idx) break;
+        } 
         sort(vec.begin(), vec.end());
-        scc.insert(make_pair(vec[0], vec));
+        SCC.push_back(vec);
     }
-    return dfs_low[v];
 }
 
 int main() {
-    scanf("%d %d", &V, &E);
-    g.reserve(V);
-    visited = vector<int>(V, 0);
-    dfs_low = vector<int>(V, 0);
-    dfs_num = vector<int>(V, 0);
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    int V, E; cin >> V >> E;
     for(int i = 0; i < E; i++) {
-        int tmp1, tmp2;
-        scanf("%d %d", &tmp1, &tmp2);
-        g[tmp1-1].push_back(tmp2-1);
+        int x, y; cin >> x >> y;
+        graph[x].push_back(y);
     }
-    for(int i = 0; i < V; i++) {
-        if(visited[i] == UNVISITED) dfs(i);
+    for(int i = 1; i < V; i++) {
+        if(!dfs_num[i]) dfs(i, 0);
     }
-    printf("%d\n", int(scc.size()));
-    for(map<int, vector<int>>::const_iterator i = scc.begin(); i != scc.end(); i++) {
-        int size = i->second.size(); 
-        for(int j = 0; j < size; j++) {
-            printf("%d ", i->second[j]+1);
-        }
-        printf("-1\n");
+    sort(SCC.begin(), SCC.end());
+    cout << SCC.size() << '\n';
+    for(int i = 0; i < SCC.size(); i++) {
+        for(int j = 0; j < SCC[i].size(); j++) cout << SCC[i][j] << ' ';
+        cout << -1 << '\n';
     }
     return 0;
 }

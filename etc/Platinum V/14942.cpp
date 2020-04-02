@@ -12,35 +12,46 @@ Detail: 개미집은 n개의 방으로 구성되어 있으며 n개의 방은 1�
 이때 각각의 개미에 대해 도달할 수 있는 방 중에서 가장 1번 방에 가까운 방의 번호를 출력하시오.
 Comment: 결과적으로 구간합을 구하는 문제라고 해석할 수 있음
 -> 세그먼트 트리 or 스파스 테이블인데 갱신하는 부분이 없기 때문에 스파스 테이블로 채택.
+무조건 1로 향하기 때문에 전체적으로 트리 구조를 이루고 있다고 볼 수 있는데, 우리에게 중요한 것은 부모로 향하는 길이기 때문에, 역트리를 생성함.
 */
 
 #include <iostream>
+#include <vector>
 using namespace std;
 
-int table[32][100001];
 int pending[100001];
+pair<int, int> table[17][100001];
+vector<pair<int, int>> graph[11], tree[11];
+
+void make_tree(int now, int prev) {
+    for(auto next : graph[now]) {
+        if(next.first ^ prev) {
+            tree[next.first].push_back({now, next.second});
+            make_tree(next.first, now);
+        }
+    }
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
-    int N, K, M;
-    cin >> N >> K >> M;
-    for(int i = 1; i <= N; i++) cin >> pending[i];
-    for(int i = 1; i <= K; i++) cin >> table[0][i];
-    for(int i = 1; i <= 31; i++) {
-        for(int j = 1; j <= K; j++) {
-            int t = table[i-1][j];
-            table[i][j] = table[i-1][t];
+    int N; cin >> N;
+    for(int i = 0; i < N; i++) cin >> pending[i];
+    for(int i = 0; i < N-1; i++) {
+        int x, y, weight; cin >> x >> y >> weight;
+        graph[x].push_back({y, weight});
+        graph[y].push_back({x, weight});
+    }
+    make_tree(1, 0);
+    for(int i = 1; i <= N; i++) table[0][i] = (tree[i].size()) ? tree[i][0] : pair<int, int>(0, 0);
+    for(int i = 1; i <= 16; i++) {
+        for(int j = 1; j <= N; j++) {
+            pair<int, int> t = table[i-1][j];
+            table[i][j] = pair<int, int>(table[i-1][t.first].first, t.second + table[i-1][t.first].second);
         }
     }
-    M--;
-    for(int idx = 1; idx <= N; idx++) {
-        int x = pending[idx], tmp = M;
-        for(int i = 0; tmp; i++) {
-            if(tmp & 1) x = table[i][x];
-            tmp >>= 1;
-        }
-        cout << x << ' ';
+    for(int i = 0; i < N; i++) {
+        int tmp = pending[i];
     }
     return 0;
 }
