@@ -14,13 +14,15 @@ x의 참 값은 해당 번지수 * 2, 거짓 값은 해당 번지수 * 2 + 1
 #include <vector>
 #include <stack>
 #include <algorithm>
+#include <cstring>
 using namespace std;
 
-vector<int> graph[20003];
-vector<vector<int>> SCC;
-int dfs_num[20003], dfs_low[20003], cnt = 1;
-bool finished[20003], is_error = false;
+vector<int> graph[10001];
+int dfs_num[10001], dfs_low[10001], finished[10001];
+int cnt = 1, SC = 1, V, E;
 stack<int> st;
+
+const int stand = 5000;
 
 void dfs(int idx, int prev) {
     dfs_num[idx] = dfs_low[idx] = cnt++;
@@ -30,44 +32,34 @@ void dfs(int idx, int prev) {
         if(!finished[next]) dfs_low[idx] = min(dfs_low[idx], dfs_low[next]);
     }
     if(dfs_num[idx] == dfs_low[idx]) {
-        vector<int> vec;
         while(1) {
             int t = st.top();
-            finished[t] = 1;
-            vec.push_back(t);
+            finished[t] = SC;
             st.pop();
             if(t == idx) break;
-        } 
-        sort(vec.begin(), vec.end());
-        SCC.push_back(vec);
+        } SC++;
     }
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
-    int V, E; cin >> V >> E;
+    cin >> E >> V;
     for(int i = 0; i < E; i++) {
         int x, y; cin >> x >> y;
-        if(x < 0) graph[abs(x) * 2].push_back((y < 0) ? abs(y)*2+1 : y*2);
-        else graph[x * 2 + 1].push_back((y < 0) ? abs(y)*2+1 : y*2);
-        if(y < 0) graph[abs(y) * 2].push_back((x < 0) ? abs(x)*2+1 : x * 2);
-        else graph[y * 2 + 1].push_back((x < 0) ? abs(x)*2+1 : x * 2);
+        graph[stand - x].push_back(stand + y);
+        graph[stand - y].push_back(stand + x);
     }
-    for(int i = 2; i < 2 * V + 2; i++) {
-        if(!dfs_num[i]) dfs(i, 0);
+    for(int i = 1; i <= V; i++) {
+        if(!dfs_num[stand + i]) dfs(stand + i, 0);
+        if(!dfs_num[stand - i]) dfs(stand - i, 0);
     }
-    for(int i = 0; i < SCC.size(); i++) {
-        for(int j = 0; j < SCC[i].size() - 1; j++) {
-            int x = SCC[i][j], y = SCC[i][j + 1];
-            if(x/2 == y/2 && abs(x - y) == 1) {
-                is_error = true;
-                i = SCC.size();
-                break;
-            } 
+    for(int i = 1; i <= V; i++) {
+        if(finished[stand + i] == finished[stand - i]) {
+            cout << "OTL";
+            return 0;
         }
     }
-    if(is_error) cout << 0;
-    else cout << 1;
+    cout << "^_^" << '\n';
     return 0;
 }
