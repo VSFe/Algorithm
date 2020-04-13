@@ -46,8 +46,8 @@ int main() {
     sort(spices + 1, spices + N + 1);
     for(int i = 1; i <= N; i++) {
         int p_idx = spices[i].second, p_spicy = spices[i].first;
-        if(p_idx != 1 && hay_list[p_idx - 1].first < p_spicy) un(p_idx - 1, p_idx);
-        if(p_idx != N && hay_list[p_idx + 1].first < p_spicy) un(p_idx + 1, p_idx);
+        if(p_idx != 1 && hay_list[p_idx - 1].first <= p_spicy) un(p_idx - 1, p_idx);
+        if(p_idx != N && hay_list[p_idx + 1].first <= p_spicy) un(p_idx + 1, p_idx);
         if(hay_list[p_idx].second >= M) {
             cout << hay_list[p_idx].first;
             return 0;
