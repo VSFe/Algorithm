@@ -35,7 +35,10 @@ void dfs(int x, int y, int visited[26], int cnt) {
 int main() {
     scanf("%d %d", &R, &C);
     for(int i = 0; i < R; i++) {
-        scanf("%s", dt[i]);
+        getchar();
+        for(int j = 0; j < C; j++) {
+            scanf("%c", &dt[i][j]);            
+        }
     }
     int visited[26] = {0,};
     visited[dt[0][0] - 'A'] = 1;
