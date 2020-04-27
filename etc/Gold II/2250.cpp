@@ -20,7 +20,8 @@ using namespace std;
 
 pair<int, int> tree[10001];
 vector<int> tree_height[10001];
-int N, cnt = 1, ans = 0, ans_idx = 0;
+int N, cnt = 1;
+bool is_child[10001];
 
 void inorder(int idx, int height) {
     if(tree[idx].first != -1) inorder(tree[idx].first, height + 1);
@@ -31,12 +32,23 @@ void inorder(int idx, int height) {
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
+    cin >> N;
     for(int i = 0 ; i < N; i++) {
         int x, y, z; cin >> x >> y >> z;
         tree[x] = {y, z};
+        is_child[y] = 1, is_child[z] = 1;
     }
-    inorder(1, 1);
+    int root;
+    for(int i = 1; i <= N; i++) {
+        if(!is_child[i]) {
+            root = i;
+            break;
+        }
+    }
+    inorder(root, 1);
+    int ans = 0, ans_idx = 1;
     for(int i = 1; i < 10001; i++) {
+        if(!tree_height[i].size()) break;
         sort(tree_height[i].begin(), tree_height[i].end());
         int tmp = tree_height[i].back() - tree_height[i].front();
         if(tmp > ans) {
@@ -44,4 +56,5 @@ int main() {
             ans_idx = i;
         }
     }
+    cout << ans_idx << ' ' << ans + 1;
 }
