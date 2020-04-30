@@ -11,19 +11,19 @@ M이 작음 -> 벨만포드네!
 적을수도 있다!!!!
 */
 
-#define INF 100000000
+#define INF 200000000
 #include <stdio.h>
 #include <vector>
 #include <algorithm>
 using namespace std;
 
 int V, E;
-vector<int> dist;
+vector<long long> dist;
 vector<vector<pair<int, int>>> graph;
 
 int main() {
     scanf("%d %d", &V, &E);
-    dist = vector<int>(V+1, INF);
+    dist = vector<long long>(V+1, INF);
     graph.reserve(V+1);
     for(int i = 0; i < E; i++) {
         int a, b, c;
@@ -58,7 +58,7 @@ int main() {
     else{
         for(int i = 2; i <= V; i++) {
             if(dist[i] == INF) printf("-1\n");
-            else printf("%d\n", dist[i]);
+            else printf("%lld\n", dist[i]);
         }
     }
     return 0;
