@@ -23,44 +23,5 @@ Comment: BFS 반복하면 무조건 TLE.
 #include <vector>
 #include <algorithm>
 #include <queue>
+#include <cstring>
 using namespace std;
-
-queue<pair<int, int>> q;
-int status[1500][1500], visited[1500][1500], N, M;
-int dx[4] = {1, -1, 0, 0}, dy[4] = {0, 0, 1, -1};
-char tmp;
-
-int find_minimum(int x, int y) {
-    
-}
-
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
-    cin >> N >> M;
-    fill(&visited[0][0], &visited[N-1][M-1], -1);
-    for(int i = 0; i < N; i++) {
-        for(int j = 0; j < M; j++) {
-            cin >> tmp;
-            if(tmp == '.' || tmp == 'L') {
-                q.push({i, j});
-                visited[i][j] = 0;
-            }
-            status[i][j] = tmp;
-        }
-    }
-    while(!q.empty()) {
-        pair<int, int> p = q.front(); q.pop();
-        int x = p.first, y = p.second;
-        for(int i = 0; i < 4; i++) {
-            if(x + dx[i] < 0 || x + dx[i] == N || y + dy[i] < 0 || y + dy[i] == M) continue;
-            if(visited[x + dx[i]][y + dy[i]] != -1) continue;
-            visited[x + dx[i]][y + dy[i]] = visited[x][y] + 1;
-            q.push({x + dx[i], y + dy[i]});
-        }
-    } 
-    return 0;
-}
-
-
