@@ -9,41 +9,24 @@ Comment: Sparse Table + Euler Tour on Tree
 */
 
 #include <iostream>
+#include <cstring>
 #include <vector>
 #include <algorithm>
 using namespace std;
 
-int table[17][200002], euler_tour[200002], N, M;
-vector<int> graph[100001], tree[100001];
+const int SIZE = 18;
 
-void make_tree(int now, int prev) {
-    for(auto next : graph[now]) {
-        if(next ^ prev) {
-            tree[now].push_back(next);
-            make_tree(next, now);
-        }
-    }
-}
+int N, M;
+int parent[100000][SIZE];
+int depth[100000];
+vector<int> graph[100000];
 
-int make_euler_tour(int now, int idx) {
-    euler_tour[idx] = now;
-    table[0][idx] = now;
-    if(tree[idx].size()) {
-        for(auto next : tree[idx]) {
-            idx = make_euler_tour(next, idx + 1);
-            euler_tour[idx] = now;
-            table[0][idx] = now;
-        }
-    }
-    return now + 1;
-}
-
-void make_sparse() {
-    int node = N * 2 - 1; 
-    for(int i = 1; i <= 16; i++) {
-        for(int j = 1; j <= N; j++) {
-            int x = table[i-1][j], y = table[i-1][j+1];
-            table[i][j] = min(x, y);
+void dfs(int x) {
+    for(int next : graph[x]) {
+        if(depth[next] == -1) {
+            parent[next][0] = x;
+            depth[next] = depth[x] + 1;
+            dfs(next);
         }
     }
 }
@@ -51,15 +34,52 @@ void make_sparse() {
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
-    for(int i = 0; i < N; i++) {
-        int x, y; cin >> x >> y;
+
+    cin >> N;
+    for(int i = 1; i < N; i++) {
+        int x, y;
+        cin >> x >> y;
+        x--; y--;
         graph[x].push_back(y);
         graph[y].push_back(x);
     }
-    make_tree(1, 0); make_euler_tour(1, 0); make_sparse();
+
+    memset(parent, -1, sizeof(parent));
+    fill(depth, depth + N, -1);
+    depth[0] = 0;
+    dfs(0);
+
+    for(int i = 0; i < SIZE - 1; i++) {
+        for(int j = 0; j < N; j++) {
+            if(parent[j][i] != -1)
+                parent[j][i + 1] = parent[parent[j][i]][i];
+        }
+    }
+
     cin >> M;
     for(int i = 0; i < M; i++) {
         int x, y; cin >> x >> y;
-        
+        x--; y--;
+
+        if(depth[x] < depth[y]) swap(x, y);
+        int diff = depth[x] - depth[y];
+
+        for(int i = 0; diff; i++) {
+            if(diff % 2) x = parent[x][i];
+            diff /= 2;
+        }
+
+        if(x != y) {
+            for(int i = SIZE - 1; i >= 0; i--) {
+                if(parent[x][i] != -1 && parent[x][i] != parent[y][i]) {
+                    x = parent[x][i];
+                    y = parent[y][i];
+                }
+            }
+            x = parent[x][0];
+        }
+
+        cout << x + 1 << '\n';
     }
+
 }
