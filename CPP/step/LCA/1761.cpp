@@ -1,78 +1,75 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 #include <cstring>
 using namespace std;
 
-const int MAX = 17;
+const int SIZE = 41;
+vector<pair<int, int>> graph[SIZE];
+int N, M;
+int parent[17][SIZE];
+int dist[SIZE]; 
+int depth[SIZE];
 
-int dist[40020];
-int depth[40020];
-int parent[40020][MAX];
-vector<pair<int, int>> graph[40020];
-
-void dfs(int i) {
-    for(pair<int, int> node: graph[i]) {
-        if(depth[node.first] == -1) {
-            parent[node.first][0] = i;
-            depth[node.first] = depth[i] + 1;
-            dist[node.first] = dist[i] + node.second;
-            dfs(node.first);
+void Traversal(int node) {
+    for(pair<int, int> p: graph[node]) {
+        if(depth[p.first] == -1) {
+            parent[0][p.first] = node;
+            dist[p.first] = dist[node] + p.second;
+            depth[p.first] = depth[node] + 1;
+            Traversal(p.first);
         }
     }
+}
+
+void MakeTable() {
+    for(int i = 1; i < 17; i++)
+        for(int j = 1; j < SIZE; j++)
+            parent[i][j] = parent[i - 1][parent[i - 1][j]];
+}
+
+int solve(int x, int y) {
+    int X = x, Y = y;
+    if(depth[X] < depth[Y]) swap(X, Y);
+    int diff = depth[X] - depth[Y];
+
+    for(int i = 0; diff; i++) {
+        if(diff & 1) X = parent[i][X];
+        diff >>= 1;
+    }
+
+    if(X != Y) {
+        for(int i = 16; i >= 0; i--) {
+            if(parent[i][X] != parent[i][Y]) {
+                X = parent[i][X];
+                Y = parent[i][Y];
+            }
+        }
+
+        X = parent[0][X];
+    }
+
+    return dist[x] + dist[y] - 2 * dist[X];
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
 
-    int N, M;
     cin >> N;
-
     for(int i = 1; i < N; i++) {
-        int x, y, len; cin >> x >> y >> len;
-        x--, y--;
-        graph[x].push_back({y, len});
-        graph[y].push_back({x, len});
+        int x, y, d; cin >> x >> y >> d;
+        graph[x].push_back({y, d});
+        graph[y].push_back({x, d});
     }
 
-    memset(parent, -1, sizeof(parent));
     memset(depth, -1, sizeof(depth));
-    depth[0] = 0;
-    dfs(0);
-
-    int size = MAX - 1;
-    for(int i = 0; i < size; i++) {
-        for(int j = 0; j < N; j++) {
-            if(parent[j][i] != 1) parent[j][i + 1] = parent[parent[j][i]][i];
-        }
-    }
+    depth[1] = 0;
+    Traversal(1);
+    MakeTable();
 
     cin >> M;
     for(int i = 0; i < M; i++) {
         int x, y; cin >> x >> y;
-        x--; y--;
-        int X = x, Y = y;
-
-        if(depth[x] < depth[y]) swap(x, y);
-        int diff = depth[x] - depth[y];
-
-        for(int i = 0; diff; i++) {
-            if(diff % 2) x = parent[x][i];
-            diff /= 2;
-        }
-
-        if(x != y) {
-            for(int i = MAX - 1; i >= 0; i--) {
-                if(parent[x][i] != -1 && parent[x][i] != parent[y][i]) {
-                    x = parent[x][i];
-                    y = parent[y][i];
-                }
-            }
-            x = parent[x][0];
-        }
-
-        int answer = dist[X] + dist[Y] - 2 * dist[x];
-        cout << answer << '\n';
+        cout << solve(x, y) << '\n';
     }
 }
