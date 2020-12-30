@@ -13,28 +13,32 @@ Sparse Table의 특성인 갱신 없음 + 반복활용을 생각하면 될 것 �
 #include <iostream>
 using namespace std;
 
-int table[19][200001];
+const int SIZE = 200001;
+int table[19][SIZE];
+// log2(200000) = 17.6..... -> 넉넉 잡아 19로.
+
+void MakeTable() {
+    for(int i = 1; i <= 18; i++)
+        for(int j = 1; j < SIZE; j++)
+            table[i][j] = table[i - 1][table[i - 1][j]];
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
-    int N, Q;
-    cin >> N;
-    for(int i = 1; i <= N; i++) cin >> table[0][i];
-    for(int i = 1; i <= 18; i++) {
-        for(int j = 1; j <= N; j++) {
-            int t = table[i-1][j];
-            table[i][j] = table[i-1][t];
-        }
-    }
-    cin >> Q;
+
+    int N; cin >> N;
+    for(int i = 1; i <= N; i++)
+        cin >> table[0][i];
+    MakeTable();
+
+    int Q; cin >> Q;
     for(int i = 0; i < Q; i++) {
-        int n, x;
-        cin >> n >> x;
-		for (int i = 0; n; i++) {
-			if (n & 1) x = table[i][x];
-			n >>= 1;
-		}
+        int n, x; cin >> n >> x;
+        for(int j = 0; n; j++) {
+            if(n & 1) x = table[j][x];
+            n >>= 1;
+        }
         cout << x << '\n';
     }
 }
