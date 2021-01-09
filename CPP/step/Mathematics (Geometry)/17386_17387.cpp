@@ -11,44 +11,46 @@ Comment: CCW를 활용!
 using namespace std;
 
 struct point {
-    int x; int y;
-    point() {}
-    point(int x, int y) : x(x), y(y) { }
-    bool operator >= (point& p2) {
-        if(x == p2.x && y == p2.y) return true;
-        else if(x == p2.x) return (y >= p2.y);
-        return (x >= p2.x);
-    } 
-    bool operator == (point& p2) {
-        return (x == p2.x && y == p2.y);
+    long long x, y;
+
+    bool operator >= (const point &p) {
+        if(x == p.x) return y >= p.y;
+        return x >= p.x;
     }
 };
 
-int CCW(point &x, point &y, point &z) {
-    long long cal = (long long)(y.x - x.x) * (long long)(z.y - x.y) - (long long)(y.y - x.y) * (long long)(z.x - x.x);
-    if(cal == 0) return 0;
-    else if(cal > 0) return 1; //CCW
-    else return -1; //CW
+int CCW(point &a, point &b, point &c) {
+    long long X1 = b.x - a.x, X2 = c.x - a.x;
+    long long Y1 = b.y - a.y, Y2 = c.y - a.y;
+    long long result = X1 * Y2 - X2 * Y1;
+
+    if(result > 0) return 1;
+    else if(result) return -1;
+    return 0;
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
-    cout.tie(0);
+
     point points[4];
+
     for(int i = 0; i < 4; i++) {
-        int x, y;
-        cin >> x >> y;
-        points[i] = point(x, y);
+        long long x, y; cin >> x >> y;
+        points[i] = {x, y};
     }
-    long long t1 = CCW(points[0], points[1], points[2]) * CCW(points[0], points[1], points[3]);
-    long long t2 = CCW(points[2], points[3], points[0]) * CCW(points[2], points[3], points[1]);
-    if(t1 <= 0 && t2 <= 0) {
-        if(t1 == 0 && t2 == 0) {
-            if(points[0] == points[2] || points[0] == points[3] || points[1] == points[2] || points[1] == points[3] ) cout << 1;
-            else if(points[0] >= points[3]) cout << (points[2] >= points[1]) ? 0 : 1; 
-            else cout << (points[1] >= points[2]) ? 0 : 1;
-        } else cout << 1;
-    } else cout << 0;
-    return 0;
+
+    int t0 = CCW(points[0], points[1], points[2]) * CCW(points[0], points[1], points[3]);
+    int t1 = CCW(points[2], points[3], points[0]) * CCW(points[2], points[3], points[1]);
+ 
+    if(t0 == 1 || t1 == 1) cout << 0;
+    else {
+        if(t0 == 0 && t1 == 0) {
+            if(points[0] >= points[1]) swap(points[0], points[1]);
+            if(points[2] >= points[3]) swap(points[2], points[3]);
+            if(points[3] >= points[0] && points[1] >= points[2]) cout << 1;
+            else cout << 0;
+        }
+        else cout << 1;
+    }
 }
