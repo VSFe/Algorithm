@@ -74,8 +74,6 @@ int main() {
 
     find_air();
 
-
-
     for(int i = 0; i < T; i++) solve();
 
     int result = 0;
